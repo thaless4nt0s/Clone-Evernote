@@ -42,7 +42,7 @@ router.post("/login", async (req, res) =>{
         }
       })
     }
-  }catch(err){
+  }catch(error){
     res.status(500).json({error: "Internal Error, please Try Again"})
   }
 })
