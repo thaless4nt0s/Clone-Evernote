@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const User = require("../models/user")
 const jwt = require('jsonwebtoken')
+require('dotenv').config()
+const secret = process.env.JWT_TOKEN
 
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
@@ -10,7 +12,7 @@ router.post('/register', async (req, res) => {
     await user.save()
     res.status(200).json(user);
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({error: "Erro ao salvar o usuário !!"});
   }
 });
 
@@ -19,9 +21,30 @@ router.get("/", async(req, res) =>{
     const user = await User.find({})
     res.status(200).json(user)
   } catch (error) {
-    res.status(500).json(error)
+    res.status(500).json({error: "Erro ao encontrar usuário"})
   }
 
+})
+
+router.post("/login", async (req, res) =>{
+  const {email, password} = req.body
+  try{
+    let user = await User.findOne({email})
+    if(!user){
+      res.status(401).json({error: "Incorrect e-mail or password !!"})
+    }else{
+      user.isCorrectPassword(password, function(error, same){
+        if(!same){
+          res.status(401).json({error: "Incorrect e-mail or password !!!"})
+        }else{
+          const token = jwt.sign({email}, secret, {expiresIn: "1d"})
+          res.json({user: user, token: token})
+        }
+      })
+    }
+  }catch(err){
+    res.status(500).json({error: "Internal Error, please Try Again"})
+  }
 })
 
 module.exports = router;
