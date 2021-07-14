@@ -1,12 +1,12 @@
 const express = require("express")
 const router = express.Router()
 const Note = require("../models/note")
+const WithAuth = require("../middlewares/auth")
 
-
-router.get("/", async (req, res) =>{
+router.post("/", WithAuth, async (req, res) =>{
     const {title, body} = req.body
-    let note = new Note({title: title, body: body, author: req.user._id})
     try{
+        let note = new Note({title: title, body: body, author: req.user._id})
         await note.save()
         res.status(200).json(note)
     }catch(error){
