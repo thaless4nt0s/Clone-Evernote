@@ -17,9 +17,21 @@ userSchema.pre('save', function(next){
                     next(err)
                 }else{
                     this.password = hashedPassword
+                    next()
                 }
-            })
+            })  
     }
 })
+//same = é o cara que vai dizer se o password é igual a this.password
+//callback = tem o comportamendo parecido com o 'next'
+userSchema.methods.isCorrectPassword = function (password, callback) {
+    bcrypt.compare(password, this.password, function(err, same) {
+        if(err){
+            callback(err)
+        }else{
+            callback(err,same)
+        }
+    })
+}
 
 module.exports = mongoose.model("User",userSchema)
